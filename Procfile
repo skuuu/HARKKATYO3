@@ -1,1 +1,1 @@
-web:    java -cp target/classes:target/dependency/* harjoitustyokaksi.KysymyspankkiMain
+web:    java -cp target/classes:target/dependency/* tikape.harjoitustyokaksi.KysymyspankkiMain
