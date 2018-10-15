@@ -38,9 +38,6 @@ public class VastausDao implements Dao <Vastaus, Integer> {
         return vastaus;
         
     }
-
-    //muokkaa niin, että palauttaa vain yhden kysymyksen vastaukset, 
-    // eli ne vastaukset, joiden kysymys_id=kysymys.id
     @Override
     public List<Vastaus> findAll() throws SQLException {
         Connection con = db.getConnection();
@@ -52,7 +49,7 @@ public class VastausDao implements Dao <Vastaus, Integer> {
         while (rs.next()){
             Vastaus vastaus = new Vastaus(rs.getString("vastausteksti"));
             vastaus.setKysymys(Integer.parseInt(rs.getString("kysymys_id")));
-            vastaus.setOikein(rs.getBoolean("oikein"));
+            vastaus.setOikein(rs.getBoolean("oikein"));            
             vastaus.setId(Integer.parseInt(rs.getString("id")));
             vastaukset.add(vastaus);
         }
@@ -63,42 +60,9 @@ public class VastausDao implements Dao <Vastaus, Integer> {
         con.close();
 
         return vastaukset;
-    }
-
-    @Override
-    public Vastaus saveOrUpdate(Vastaus vastaus) throws SQLException {
-        if (vastaus.id==null){
-            return save(vastaus);
-        }else{
-            return update(vastaus);
-        }
-    }
-    public List<Vastaus> etsikysymyksenvastaukset(Integer kysymys_id) throws SQLException {
-        Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("SELECT * FROM Vastaus WHERE vastaus.kysymys_id=?");
-        stmt.setInt(kysymys_id, kysymys_id);
-
-                
-        ResultSet rs = stmt.executeQuery();
-        List <Vastaus> vastaukset = new ArrayList<>();
-
-        while (rs.next()){
-            Vastaus vastaus = new Vastaus(rs.getString("vastausteksti"));
-            vastaukset.add(vastaus);
-        }
-        
-        stmt.close();
-        rs.close();
-
-        con.close();
-
-        return vastaukset;
-    }
     
-    
-    
-    //poistaa halutun vastauksen id:n perusteella:
-    @Override
+
+    }
     public void delete(Integer key) throws SQLException {
         Connection conn = db.getConnection();
         
@@ -112,9 +76,27 @@ public class VastausDao implements Dao <Vastaus, Integer> {
         stmt.executeUpdate();
         stmt.close();
         
-        conn.close();        
+        conn.close();  
+        
     }
-    
+    //poistaa halutun vastauksen kysymys_id:n perusteella:
+    public void poistaVastaus(Integer kysymys_id) throws SQLException {
+        Connection conn = db.getConnection();
+        
+        PreparedStatement stmt = conn.prepareStatement("DELETE FROM Vastaus"
+                + " WHERE kysymys_id = ?");
+        
+        stmt.setInt(1, kysymys_id);
+        
+        
+        
+        stmt.executeUpdate();
+        stmt.close();
+        
+        conn.close();        
+        
+        
+    }
     public Vastaus save(Vastaus vastaus)throws SQLException{
         Connection conn = db.getConnection();
         
@@ -136,7 +118,7 @@ public class VastausDao implements Dao <Vastaus, Integer> {
         stmt.setString(1, vastaus.getVastausteksti());
 
         ResultSet rs = stmt.executeQuery();
-        rs.next(); // vain 1 tulos
+        rs.next(); 
 
         Vastaus a = new Vastaus(rs.getString("vastausteksti"));
 
@@ -148,20 +130,6 @@ public class VastausDao implements Dao <Vastaus, Integer> {
         return a;
         
         
-    }
-    public Vastaus update(Vastaus vastaus) throws SQLException{
-        Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("UPDATE Vastaus SET"
-                + " vastausteksti = ? WHERE id = ?");
-        stmt.setString(1, vastaus.getVastausteksti());
-        stmt.setInt(2, vastaus.getId());
-
-        stmt.executeUpdate();
-
-        stmt.close();
-        con.close();
-
-        return vastaus;
     }
     
 }

@@ -39,6 +39,7 @@ public class KysymysDao implements Dao <Kysymys, Integer> {
         return teht;
         
     }
+     
 
     @Override
     public List<Kysymys> findAll() throws SQLException {
@@ -64,14 +65,7 @@ public class KysymysDao implements Dao <Kysymys, Integer> {
         return kysymykset;
     }
 
-    @Override
-    public Kysymys saveOrUpdate(Kysymys kysymys) throws SQLException {
-        if (kysymys.id==null){
-            return save(kysymys);
-        }else{
-            return update(kysymys);
-        }
-    }
+   
 
     @Override
     public void delete(Integer key) throws SQLException {
@@ -123,19 +117,4 @@ public class KysymysDao implements Dao <Kysymys, Integer> {
         
         
     }
-    public Kysymys update(Kysymys kysymys) throws SQLException{
-        Connection con = db.getConnection();
-        PreparedStatement stmt = con.prepareStatement("UPDATE Kysymys SET"
-                + " kysymysteksti = ? WHERE id = ?");
-        stmt.setString(1, kysymys.getKysymysteksti());
-        stmt.setInt(2, kysymys.getId());
-
-        stmt.executeUpdate();
-
-        stmt.close();
-        con.close();
-
-        return kysymys;
-    }
-    
 }

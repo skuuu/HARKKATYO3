@@ -1,6 +1,7 @@
 package tikape.harjoitustyokaksi;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,10 +43,8 @@ public class KysymyspankkiMain {
             kysymyslista = kysdao.findAll();
             vastauslista = vasdao.findAll();
             
-            //lisätään kysymys+siihen liittyvät vastaukset mappi2:een. Jos kysymyksellä
-            //ei ole vastauksia, ei sitä lisätä
+            //lisätään kysymys+siihen liittyvät vastaukset mappi2:een. 
             for (int y = 0; y < kysymyslista.size(); y++) {
-                System.out.println(kysymyslista.get(y));
                 for (int x = 0; x < vastauslista.size(); x++) {
                     if (vastauslista.get(x).getKysymys()== kysymyslista.get(y).getId()){
                         mappi2.putIfAbsent(kysymyslista.get(y), new ArrayList<>());
@@ -80,34 +79,50 @@ public class KysymyspankkiMain {
                 Kysymys uusi = new Kysymys (kysymysteksti);
                 uusi.setAihe(aihe);
                 uusi.setKurssi(kurssi);
-                kysdao.saveOrUpdate(uusi);
+                kysdao.save(uusi);
+                
+            }
+            //vastauksen lisääminen:
+            if ((!(req.queryParams("vastaus").equals(""))|| req.queryParams("vastaus").equals("null"))
+            && (onkoKysymysta(Integer.parseInt(req.queryParams("kysymys_id")), kysdao)==true)) {
+                String vastausteksti = req.queryParams("vastaus");
+                Boolean arvo = true; 
+                if (req.queryParams("oikein").trim().equals("true")){
+                    arvo = true;
+                    Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
+                    
+
+                    Vastaus uusi = new Vastaus(vastausteksti);
+                    uusi.setKysymys(kysymys_id);
+                    uusi.setOikein(arvo);
+                    vasdao.save(uusi);
+                
+                }else if (req.queryParams("oikein").trim().equals("false")){
+                    arvo = false;
+                    Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
+
+                    Vastaus uusi = new Vastaus(vastausteksti);
+                    uusi.setKysymys(kysymys_id);
+                    uusi.setOikein(arvo);
+                    vasdao.save(uusi);
+                }else{
+                    System.out.println("virheellinen Boolean-arvo");
+                }
+
                 
             }
             
-            if (!(req.queryParams("vastaus").equals(""))|| req.queryParams("vastaus").equals("null")){
-                String vastausteksti = req.queryParams("vastaus");
-                Boolean arvo = true; 
-                if (req.queryParams("oikein").equals("true")){
-                    arvo = true; 
-                }else {
-                    arvo = false;
-                }
-
-                Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
-
-                Vastaus uusi = new Vastaus(vastausteksti);
-                uusi.setKysymys(kysymys_id);
-                uusi.setOikein(arvo);
-                vasdao.saveOrUpdate(uusi);
-            }
-            
             //kysymyksen poistaminen: 
-            if (!(req.queryParams("poistettavak").equals(""))|| req.queryParams("poistettavak").equals("null")){
-                Integer poistettavaid = Integer.parseInt(req.queryParams("poistettavak"));
-                List <Kysymys> kysymyslista = kysdao.findAll();
-                for (Kysymys kys: kysymyslista){
-                    if (kys.id.equals(poistettavaid)){
-                        kysdao.delete(poistettavaid);
+            //kysymyksen poistaminen poistaa myös siihen liittyvät vastausvaihtoehdot
+            if (!(req.queryParams("poistettavak").equals(""))|| req.queryParams("poistettavak").equals("null") && (onkoKysymysta(Integer.parseInt(req.queryParams("kysymys_id")), kysdao)==true)){
+                if (onkoInteger(req.queryParams("poistettavak"))==true){
+                    Integer poistettavaid = Integer.parseInt(req.queryParams("poistettavak"));
+                    List <Kysymys> kysymyslista = kysdao.findAll();
+                    for (Kysymys kys: kysymyslista){
+                        if (kys.id.equals(poistettavaid)){
+                            vasdao.poistaVastaus(poistettavaid);
+                            kysdao.delete(poistettavaid);
+                        }
                     }
                 }
             }
@@ -115,11 +130,13 @@ public class KysymyspankkiMain {
             
             //vastauksen poistaminen: 
             if (!(req.queryParams("poistettavav").equals(""))|| req.queryParams("poistettavav").equals("null")){
-                Integer poistettavavid = Integer.parseInt(req.queryParams("poistettavav"));
-                List <Vastaus> vastauslista = vasdao.findAll();
-                for (Vastaus vas: vastauslista){
-                    if (vas.id.equals(poistettavavid)){
-                        vasdao.delete(poistettavavid);
+                if (onkoInteger(req.queryParams("poistettavav"))==true){
+                    Integer poistettavavid = Integer.parseInt(req.queryParams("poistettavav"));
+                    List <Vastaus> vastauslista = vasdao.findAll();
+                    for (Vastaus vas: vastauslista){
+                        if (vas.id.equals(poistettavavid)){
+                            vasdao.delete(poistettavavid);
+                        }
                     }
                 }
             }
@@ -130,51 +147,29 @@ public class KysymyspankkiMain {
             return "ok";
         });
 
-            
 
-
-
-
-            
-     
-        
-
-//        Spark.get("/v", (req, res) -> {
-//            HashMap map = new HashMap<>();
-//            map.put("kysymykset", kysdao.findAll());
-//            map.put ("vastaukset", vasdao.findAll());
-//
-//            
-//             //tallennetaan uuteen mappiin kysymys ja sen vastauslista:  
-//            List <Vastaus> vastauslista = new ArrayList<>();
-//            List <Kysymys> kysymyslista = new ArrayList<>();
-//            HashMap <Kysymys, ArrayList<Vastaus>> mappi2  = new HashMap<>();
-//            
-//            //lisätään kaikki kysymykset kysymyslistalle ja vastaukset vastauslistalle:
-//            kysymyslista = kysdao.findAll();
-//            vastauslista = vasdao.findAll();
-//            
-//            //lisätään kysymys+siihen liittyvät vastaukset mappi2:een. Jos kysymyksellä
-//            //ei ole vastauksia, ei sitä lisätä
-//            for (int y = 0; y < kysymyslista.size(); y++) {
-//                System.out.println(kysymyslista.get(y));
-//                for (int x = 0; x < vastauslista.size(); x++) {
-//                    if (vastauslista.get(x).getKysymys()== kysymyslista.get(y).getId()){
-//                        mappi2.putIfAbsent(kysymyslista.get(y), new ArrayList<>());
-//                        mappi2.get(kysymyslista.get(y)).add(vastauslista.get(x));
-//                    
-//                    }else{
-//                        mappi2.putIfAbsent(kysymyslista.get(y), new ArrayList<>());
-//
-//                    }
-//                    
-//                }
-//            }
-//            map.put("kysymysvastausparit", mappi2);
-//                    
-//            return new ModelAndView(map, "index2");
-//        }, new ThymeleafTemplateEngine());
     }
+    //tarkistaa, onko mainitulla id:llä olevaa kysymystä tietokannassa. 
+    public static Boolean onkoKysymysta(int id, KysymysDao kysdao) throws SQLException{
+        for (Kysymys kys: kysdao.findAll()){
+            if (kys.getId()==id){
+                return true;
+            }
 
-        
+        }
+        return false;
+    }
+    
+    //tarkistetaan, että syötetty luku on Integer: 
+    public static boolean onkoInteger(String s){
+        try
+        {
+            Integer.parseInt(s);
+            return true;
+        } catch (NumberFormatException ex)
+        {
+            return false;
+        }
+}
+    
 }
