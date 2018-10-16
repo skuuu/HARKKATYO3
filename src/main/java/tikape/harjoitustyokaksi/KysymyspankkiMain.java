@@ -12,13 +12,17 @@ import spark.template.thymeleaf.ThymeleafTemplateEngine;
 public class KysymyspankkiMain {
 
     public static void main(String[] args) throws Exception {
+        
+        if (System.getenv("PORT") != null) {
+            Spark.port(Integer.valueOf(System.getenv("PORT")));
+        }
+        
         File tiedosto = new File("db", "kysymykset.db");
         Database db = new Database("jdbc:sqlite:" + tiedosto.getAbsolutePath());
         
         KysymysDao kysdao = new KysymysDao(db);
         VastausDao vasdao = new VastausDao(db);
         
-        Vastaus muokattava = new Vastaus ("tyhja");
    
         
         System.out.println("Hei maailma!");
