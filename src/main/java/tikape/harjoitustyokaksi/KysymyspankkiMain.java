@@ -31,7 +31,7 @@ public class KysymyspankkiMain {
         
 
         
-        //sivun näyttäminen
+        //GET
         Spark.get("/a", (req, res) -> {
             HashMap map = new HashMap<>();
             map.put("kysymykset", kysdao.findAll());
@@ -67,12 +67,30 @@ public class KysymyspankkiMain {
         }, new ThymeleafTemplateEngine());
         
         
+       //virhesivun näyttäminen: 
+       Spark.get("/b", (req, res) -> {
+            HashMap map = new HashMap<>();
+            
+            return new ModelAndView(map, "virheviesti");
+        }, new ThymeleafTemplateEngine());
+        
+        
+        
+        
        
-        
-        
-        //postaaminen: 
+       
+       
+        //POST: 
         Spark.post("/a", (req, res)-> {
-
+            //Jos lähetettävä lomake ei poista kysymystä/vastausta tai lisää näitä, näytetään virheviesti:
+            if ((req.queryParams("kysymysteksti").equals("") || req.queryParams("kysymysteksti").equals("null"))
+                    && (req.queryParams("vastaus").equals("")|| req.queryParams("vastaus").equals("null"))
+                    && (req.queryParams("poistettavak").equals("")|| req.queryParams("poistettavak").equals("null"))
+                    && (req.queryParams("poistettavav").equals("")|| req.queryParams("poistettavav").equals("null"))){
+                res.redirect("/b");
+                return "väärä syöte";
+                
+            }
             //kysymyksen lisääminen: 
             if (!(req.queryParams("kysymysteksti").equals("") || req.queryParams("kysymysteksti").equals("null"))){
                 String kysymysteksti = req.queryParams("kysymysteksti");
@@ -85,10 +103,17 @@ public class KysymyspankkiMain {
                 uusi.setKurssi(kurssi);
                 kysdao.save(uusi);
                 
+                
             }
             //vastauksen lisääminen:
-            if ((!(req.queryParams("vastaus").equals(""))|| req.queryParams("vastaus").equals("null"))
-            && (onkoKysymysta(Integer.parseInt(req.queryParams("kysymys_id")), kysdao)==true)) {
+            //vastaus lisätään vain, jos kyseisen id:n omaava kysymys on olemassa ja vastaukseen liityvän kysymyksen id on annettu ja integer-muotoinen:
+            if ((!(req.queryParams("vastaus").equals(""))|| req.queryParams("vastaus").equals("null"))) {
+                if (onkoInteger(req.queryParams("kysymys_id"))==false || onkoKysymysta(Integer.parseInt(req.queryParams("kysymys_id")), kysdao)==false || req.queryParams("kysymys_id").equals("") || req.queryParams("kysymys_id").equals("null")){
+                    System.out.println("Kysymystä ei ole tietokannassa tai syötetty kysymyksen numero ei ole Integer");
+                    res.redirect("/b");
+                    return "Kysymystä ei ole tietokannassa tai syötetty kysymyksen numero ei ole Integer";
+                    
+                }
                 String vastausteksti = req.queryParams("vastaus");
                 Boolean arvo = true; 
                 if (req.queryParams("oikein").trim().equals("true")){
@@ -109,8 +134,12 @@ public class KysymyspankkiMain {
                     uusi.setKysymys(kysymys_id);
                     uusi.setOikein(arvo);
                     vasdao.save(uusi);
+                    
+                //jos Boolean-arvo on virheellinen, palautetaan virheviestisivu:
                 }else{
                     System.out.println("virheellinen Boolean-arvo");
+                    res.redirect("/b");
+                    return "virheellinen Boolean-arvo";
                 }
 
                 
@@ -118,7 +147,7 @@ public class KysymyspankkiMain {
             
             //kysymyksen poistaminen: 
             //kysymyksen poistaminen poistaa myös siihen liittyvät vastausvaihtoehdot
-            if (!(req.queryParams("poistettavak").equals(""))|| req.queryParams("poistettavak").equals("null") && (onkoKysymysta(Integer.parseInt(req.queryParams("kysymys_id")), kysdao)==true)){
+            if (!(req.queryParams("poistettavak").equals(""))|| req.queryParams("poistettavak").equals("null") && (onkoKysymysta(Integer.parseInt(req.queryParams("poistettavak")), kysdao)==true)){
                 if (onkoInteger(req.queryParams("poistettavak"))==true){
                     Integer poistettavaid = Integer.parseInt(req.queryParams("poistettavak"));
                     List <Kysymys> kysymyslista = kysdao.findAll();
@@ -128,6 +157,11 @@ public class KysymyspankkiMain {
                             kysdao.delete(poistettavaid);
                         }
                     }
+                //jos syöte ei ole integer, ohjataan virheviestisivulle:
+                }else{
+                    res.redirect("/b");
+                    System.out.println("Syöte ei ole Integer");
+                    return "Syöte ei ole Integer";
                 }
             }
             
@@ -142,18 +176,21 @@ public class KysymyspankkiMain {
                             vasdao.delete(poistettavavid);
                         }
                     }
+                //jos vastauksen numero ei ole integer, palautetaan virheviestisivu:
+                }else{
+                    res.redirect("/b");
+                    System.out.println("Syöte ei ole Integer");
+                    return "Syöte ei ole Integer";
                 }
-            }
             
-            
-                   
+            }      
             res.redirect("/a");
             return "ok";
         });
 
 
     }
-    //tarkistaa, onko mainitulla id:llä olevaa kysymystä tietokannassa. 
+    //tarkistetaan, onko mainitulla id:llä olevaa kysymystä tietokannassa. 
     public static Boolean onkoKysymysta(int id, KysymysDao kysdao) throws SQLException{
         for (Kysymys kys: kysdao.findAll()){
             if (kys.getId()==id){
@@ -162,8 +199,8 @@ public class KysymyspankkiMain {
 
         }
         return false;
+        
     }
-    
     //tarkistetaan, että syötetty luku on Integer: 
     public static boolean onkoInteger(String s){
         try
@@ -174,6 +211,6 @@ public class KysymyspankkiMain {
         {
             return false;
         }
-}
+    }
     
 }

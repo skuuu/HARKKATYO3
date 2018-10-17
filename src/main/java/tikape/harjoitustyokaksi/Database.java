@@ -10,9 +10,6 @@ public class Database {
         this.databaseAddress = databaseAddress;
     }
 
-//    public Connection getConnection() throws SQLException {
-//        return DriverManager.getConnection(databaseAddress);
-//    }
     
     
     public Connection getConnection() throws SQLException {
