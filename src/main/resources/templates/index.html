@@ -1,74 +1,76 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html style="font-family:georgia; font-size:90%; margin: 60px;" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
 
     <head>
-        <title>Kysymyspankki</title>
+        <title > Kysymyspankki</title>
         <meta charset="utf-8" />
+        
+        
     </head>
 
     <body>
-        <pre>
         <br/>
-        KYSYMYSPANKKI
+        <h2>KYSYMYSPANKKI</h2>
+        <br/>
         <br/>
         
-        Lisää kysymys/vastausvaihtoehto täyttämällä alla olevat kohdat. <br/>
-        Jätä kohta tyhjäksi, jos et halua lisätä sitä. <br/>
-        </pre>
+        Lis&auml&auml kysymys/vastausvaihtoehto t&aumlytt&aumlm&aumlll&auml alla olevat kohdat. <br/>
+        J&aumlt&auml kohta tyhj&aumlksi, jos et halua lis&aumlt&auml sit&auml. <br/><br/>
         <br/>
         <form method="POST" action="/a" id = "form1">
-            <pre>
-            Lisää kysymys:<br/>
-            <input type="text" name="kysymysteksti"/><br/> 
-           
-            
+            Lis&auml&auml kysymys:<br/>
+            <input type="text" name="kysymysteksti"/><br/> <br/>
             Kysymyksen aihe:<br/>
-            <input type="text" name="aihe"/><br/> 
+            <input type="text" name="aihe"/><br/> <br/>
             Kysymyksen kurssi:<br/>
-            <input type="text" name="kurssi"/><br/> 
+            <input type="text" name="kurssi"/><br/> <br/>
             Poistettavan kysymyksen nro:<br/>
-            <input type="text" name="poistettavak"/><br/> 
-            <br/>
-            Lisää vastausvaihtoehto: <br/>
-            <input type="text" name="vastaus"/><br/> 
-            Lisää vastausvaihtoehtoon liittyvän kysymyksen nro: <br/>
-            <input type="text" name="kysymys_id"/><br/> 
-            Lisää vastausvaihtoehdon oikein/väärin -arvo (true/false):<br/> 
-            <input type="text" name="oikein"/><br/> 
+            <input type="text" name="poistettavak"/><br/> <br/>
+            Lis&auml&auml vastausvaihtoehto: <br/>
+            <input type="text" name="vastaus"/><br/> <br/>
+            Lis&auml&auml vastausvaihtoehtoon liittyv&aumln kysymyksen nro: <br/>
+            <input type="text" name="kysymys_id"/><br/> <br/>
+            
+            Onko vastausvaihtoehto oikein? <br/>
+            Oikein: 
+            <input type="checkbox" id="oikein" name="oikein" value="checked"/><br/><br/>
+            
+            
             Poistettavan vastauksen nro: <br/>
-            <input type="text" name="poistettavav"/><br/> 
-            <input type="submit" name = "button0" value="Lähetä!"/> 
+            <input type="text" name="poistettavav"/><br/> <br/>
+            <input type="submit" name = "button0" value= "L&auml;het&auml;!"/> 
             <br/>
-            </pre>
         </form>
         
-        
+          
     </body>
  
 </html>
+    <br/><br/><br/>
+    <ul>
+        <h4> Lis&aumltyt kysymykset vastausvaihtoehtoineen: </h4>
     <br/>
-    Lisätyt kysymykset vastausvaihtoehtoineen: 
-    <br/>
-    <br/>
-
     
     <tr th:each="pari : ${kysymysvastausparit}">
-        
+      
         Kysymyksen nro:
         <td th:text="${pari.key.id}">keyvalue</td><br/>
         <td th:text="${pari.key.kurssi}">keyvalue</td><br/> 
         <td th:text="${pari.key.aihe}">keyvalue</td><br/> 
         <td th:text="${pari.key.kysymysteksti}">keyvalue</td>
-        <table>
             <table>
             <tr th:each="lista : ${pari.value}"> 
+                <td <label th:text="'&nbsp'" ></label></td>
                 <td th:text="${lista.id}">vastauksen id</td>
                 <td th:text="${lista.vastausteksti}">vastausteksti</td>
+                <td <label th:text="'(' + ${lista.oikeinteksti} + ')'"></label> oikein</td>
             </tr>
             </table>
-        </table>
-        
+       
+        <br/>
         <br/> 
+    </ul>
     </tr>  
 
 

@@ -6,6 +6,7 @@ public class Vastaus {
     public Integer kysymys_id;
     private String vastausteksti;
     private Boolean oikein;
+    private String oikeinteksti;
     
     
     public Vastaus (String vastausteksti){
@@ -29,10 +30,19 @@ public class Vastaus {
     }
 
     public Boolean getOikein() {
-        return oikein;
+        return this.oikein;
+        
+    }
+    public String getOikeinteksti(){
+        return this.oikeinteksti;
     }
 
     public void setOikein(Boolean oikein) {
+        if (oikein = true){
+            oikeinteksti = "oikein";
+        }else{
+            oikeinteksti = "väärin";
+        }
         this.oikein = oikein;
     }
     
@@ -43,7 +53,7 @@ public class Vastaus {
         this.id= id;
     }
     public String toString(){
-        return this.id + this.vastausteksti;
+        return this.id + this.vastausteksti + " (" + this.oikein + ")";
     }
     
 }

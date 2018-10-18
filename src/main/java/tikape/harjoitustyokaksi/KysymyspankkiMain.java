@@ -1,5 +1,7 @@
 package tikape.harjoitustyokaksi;
 
+import java.awt.Checkbox;
+import java.awt.CheckboxGroup;
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -114,37 +116,38 @@ public class KysymyspankkiMain {
                     return "Kysymystä ei ole tietokannassa tai syötetty kysymyksen numero ei ole Integer";
                     
                 }
-                String vastausteksti = req.queryParams("vastaus");
-                Boolean arvo = true; 
-                if (req.queryParams("oikein").trim().equals("true")){
-                    arvo = true;
-                    Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
+                //kysymyksen arvo:
+                CheckboxGroup cg = new CheckboxGroup();
+                String nimi = req.queryParams("oikein");
+                Checkbox c1 = new Checkbox(nimi, false, cg);
+                Checkbox cb = cg.getSelectedCheckbox();
                     
+                //ei chekattu
+                if(nimi==null) {
+                    System.out.println("not checked");
+                    Boolean arvo = false;
+                    Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
 
-                    Vastaus uusi = new Vastaus(vastausteksti);
+                    Vastaus uusi = new Vastaus(req.queryParams("vastaus"));
                     uusi.setKysymys(kysymys_id);
                     uusi.setOikein(arvo);
                     vasdao.save(uusi);
-                
-                }else if (req.queryParams("oikein").trim().equals("false")){
-                    arvo = false;
+
+                //chekattu
+                } else {
+//                    System.out.println(cb.getLabel() + " is checked");
+                    Boolean arvo = true;
                     Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
 
-                    Vastaus uusi = new Vastaus(vastausteksti);
+
+                    Vastaus uusi = new Vastaus(req.queryParams("vastaus"));
                     uusi.setKysymys(kysymys_id);
                     uusi.setOikein(arvo);
                     vasdao.save(uusi);
-                    
-                //jos Boolean-arvo on virheellinen, palautetaan virheviestisivu:
-                }else{
-                    System.out.println("virheellinen Boolean-arvo");
-                    res.redirect("/b");
-                    return "virheellinen Boolean-arvo";
                 }
-
-                
             }
             
+         
             //kysymyksen poistaminen: 
             //kysymyksen poistaminen poistaa myös siihen liittyvät vastausvaihtoehdot
             if (!(req.queryParams("poistettavak").equals(""))|| req.queryParams("poistettavak").equals("null") && (onkoKysymysta(Integer.parseInt(req.queryParams("poistettavak")), kysdao)==true)){
