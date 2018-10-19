@@ -65,20 +65,24 @@ public class VastausDao implements Dao <Vastaus, Integer> {
 
     }
     public void delete(Integer key) throws SQLException {
-        Connection conn = db.getConnection();
+        if (key == 0){
+            System.out.println("mallivastausta ei voi poistaa");
+        }else{
+            Connection conn = db.getConnection();
+
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM Vastaus"
+                    + " WHERE id = ?");
+
+            stmt.setInt(1, key);
+
+
+
+            stmt.executeUpdate();
+            stmt.close();
         
-        PreparedStatement stmt = conn.prepareStatement("DELETE FROM Vastaus"
-                + " WHERE id = ?");
         
-        stmt.setInt(1, key);
-        
-        
-        
-        stmt.executeUpdate();
-        stmt.close();
-        
-        conn.close();  
-        
+            conn.close();  
+        }
     }
     //poistaa halutun vastauksen kysymys_id:n perusteella:
     public void poistaVastaus(Integer kysymys_id) throws SQLException {
