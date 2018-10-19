@@ -117,10 +117,7 @@ public class KysymyspankkiMain {
                     
                 }
                 //kysymyksen arvo:
-                CheckboxGroup cg = new CheckboxGroup();
                 String nimi = req.queryParams("oikein");
-                Checkbox c1 = new Checkbox(nimi, false, cg);
-                Checkbox cb = cg.getSelectedCheckbox();
                     
                 //ei chekattu
                 if(nimi==null || nimi.equals("null")) {
