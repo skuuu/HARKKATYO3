@@ -123,7 +123,7 @@ public class KysymyspankkiMain {
                 Checkbox cb = cg.getSelectedCheckbox();
                     
                 //ei chekattu
-                if(nimi==null) {
+                if(nimi==null || nimi.equals("null")) {
                     System.out.println("not checked");
                     Boolean arvo = false;
                     Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
@@ -135,7 +135,7 @@ public class KysymyspankkiMain {
 
                 //chekattu
                 } else {
-//                    System.out.println(cb.getLabel() + " is checked");
+                    System.out.println("is checked");
                     Boolean arvo = true;
                     Integer kysymys_id = Integer.parseInt(req.queryParams("kysymys_id"));
 

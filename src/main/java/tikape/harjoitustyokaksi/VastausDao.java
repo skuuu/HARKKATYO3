@@ -49,6 +49,7 @@ public class VastausDao implements Dao <Vastaus, Integer> {
         while (rs.next()){
             Vastaus vastaus = new Vastaus(rs.getString("vastausteksti"));
             vastaus.setKysymys(Integer.parseInt(rs.getString("kysymys_id")));
+            
             vastaus.setOikein(rs.getBoolean("oikein"));            
             vastaus.setId(Integer.parseInt(rs.getString("id")));
             vastaukset.add(vastaus);

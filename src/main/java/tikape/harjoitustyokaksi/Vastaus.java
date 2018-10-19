@@ -11,6 +11,7 @@ public class Vastaus {
     
     public Vastaus (String vastausteksti){
         this.vastausteksti = vastausteksti;
+        this.oikeinteksti = "oletus";
     }        
 
     public Integer getKysymys() {
@@ -38,12 +39,13 @@ public class Vastaus {
     }
 
     public void setOikein(Boolean oikein) {
-        if (oikein = true){
+        if (oikein==true){
             oikeinteksti = "oikein";
+            this.oikein = true;
         }else{
             oikeinteksti = "väärin";
+            this.oikein = false;
         }
-        this.oikein = oikein;
     }
     
     public Integer getId(){
