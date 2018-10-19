@@ -68,20 +68,24 @@ public class KysymysDao implements Dao <Kysymys, Integer> {
    
 
     @Override
-    public void delete(Integer key) throws SQLException {
-        Connection conn = db.getConnection();
-        
-        PreparedStatement stmt = conn.prepareStatement("DELETE FROM Kysymys"
-                + " WHERE id = ?");
-        
-        stmt.setInt(1, key);
-        
-        
-        
-        stmt.executeUpdate();
-        stmt.close();
-        
-        conn.close(); 
+    public void delete(Integer id) throws SQLException {
+        if (id==0){
+            System.out.println("mallikysymystä ei voi poistaa");;
+        }else{
+            Connection conn = db.getConnection();
+
+            PreparedStatement stmt = conn.prepareStatement("DELETE FROM Kysymys"
+                    + " WHERE id = ?");
+
+            stmt.setInt(1, id);
+
+
+
+            stmt.executeUpdate();
+            stmt.close();
+
+            conn.close(); 
+        }
     }
     
     public Kysymys save(Kysymys kysymys)throws SQLException{
