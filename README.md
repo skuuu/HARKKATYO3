@@ -1,6 +1,4 @@
-# HARKKATYO3
+# Questions/answers service
 
-Tämä on Tikape-kurssin Harjoitustyö. 
-Sovellus on kysymys-vastauspalvelu, joka sisältää toiminnalisuuden
-kysymysten ja vastausten lisäämiseen/poistamiseen ja listaamiseen.
-Heroku-linkki: https://harjtyosk.herokuapp.com/a
+A simple web based app using Heroku database for adding/deleting questions and answers. 
+https://harjtyosk.herokuapp.com/a
